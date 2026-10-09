@@ -1,11 +1,9 @@
-name: BOEMO CI
-
+name: Odi Driving School CI
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
 jobs:
   quality:
     runs-on: ubuntu-latest

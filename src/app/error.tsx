@@ -1,3 +1,2 @@
 "use client";
-import AppErrorFallback from "@/components/system/AppErrorFallback";
-export default function Error({error,reset}:{error:Error&{digest?:string};reset:()=>void}){return <AppErrorFallback error={error} reset={reset}/>}
+export default function ErrorPage({reset}:{error:Error&{digest?:string};reset:()=>void}){return <main className="booking-page"><section className="booking-card"><p className="eyebrow">ODI DRIVING SCHOOL</p><h1>Something went wrong.</h1><p className="booking-lead">Please try again. This screen does not confirm a booking or change.</p><button className="button button-primary" onClick={reset}>Try again</button></section></main>}

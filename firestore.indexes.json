@@ -1,13 +1,1 @@
-{
-  "indexes":[
-    {
-      "collectionGroup":"orders",
-      "queryScope":"COLLECTION",
-      "fields":[
-        {"fieldPath":"mode","order":"ASCENDING"},
-        {"fieldPath":"scheduledFor","order":"ASCENDING"}
-      ]
-    }
-  ],
-  "fieldOverrides":[]
-}
+{"indexes":[],"fieldOverrides":[]}

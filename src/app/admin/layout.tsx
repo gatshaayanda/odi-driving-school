@@ -1,10 +1,1 @@
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Operations",
-  robots: { index: false, follow: false },
-};
-
-export default function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return children;
-}
+import type {Metadata} from "next";export const metadata:Metadata={title:"Instructor workspace",robots:{index:false,follow:false}};export default function InstructorLayout({children}:{children:React.ReactNode}){return children}

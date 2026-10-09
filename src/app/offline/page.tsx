@@ -1,24 +1,2 @@
 import Link from "next/link";
-
-export default function OfflinePage() {
-  return (
-    <main className="orderPage">
-      <div className="orderWrap">
-        <div className="orderHeader">
-          <Link href="/" className="logo"><span className="logoMark">B</span><span>BOEMO</span></Link>
-        </div>
-        <section className="orderCard confirm">
-          <div className="confirmIcon">📶</div>
-          <span className="kicker">Offline mode</span>
-          <h1>BOEMO is still here.</h1>
-          <p>The BOEMO app shell and previously loaded public pages can remain available on this device while your connection is away.</p>
-          <p>Firestore can keep an eligible order write locally and synchronize it later, but the kitchen has not received an offline order until Firebase confirms synchronization.</p>
-          <div className="actions centered">
-            <Link className="button buttonPrimary" href="/order">Open Order</Link>
-            <Link className="button buttonLight" href="/">Open BOEMO</Link>
-          </div>
-        </section>
-      </div>
-    </main>
-  );
-}
+export default function OfflinePage(){return <main className="booking-page"><header className="booking-header"><Link className="brand" href="/"><span className="brand-mark">O</span><span className="brand-copy"><strong>ODI</strong><small>DRIVING SCHOOL</small></span></Link></header><section className="booking-card"><p className="eyebrow">CONNECTION STATUS</p><h1>You’re offline.<br/><em>Take a breath.</em></h1><p className="booking-lead">Previously loaded public information may still be available. Booking requests and appointment changes cannot be confirmed while offline.</p><Link className="button button-primary" href="/">Return to Odi Driving School →</Link></section></main>}

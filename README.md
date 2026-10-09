@@ -1,44 +1,20 @@
-# BOEMO Joos Food Deals
+# Odi Driving School
 
-**BOEMO Joos Dealer — Good Food. Great Taste. Every Day!**
+Mobile-first public website and planned learner/instructor platform for Odi Driving School, initially serving Gaborone, Botswana.
 
-Mobile-first ordering and kitchen-operations PWA for a mobile kitchen serving around Botswana Accountancy College (BAC) and nearby student areas.
+## Current checkpoint
+The initial identity reset from a reusable Next.js/Firebase foundation is in progress. The public landing and booking-information pages use Odi branding and supplied photography. Legacy kitchen ordering/notification workflows are being removed from active routes. Firestore and Storage default-deny until Odi's schema and authorization rules are implemented and reviewed.
 
-## Customer flow
-Home → Today's Food / Deals → Order Ahead → Pickup or Delivery → Confirmation
+The booking, learner progress, instructor workspace, payment ledger and notifications are not yet implemented. This is not a live booking system.
 
-Customers do not need an account to place an order.
+## Stack and local development
+Next.js App Router, React, TypeScript, Firebase Web SDK project odi-driving-school, Vercel target (production URL not confirmed).
+Run npm ci, copy .env.example to .env.local, then npm run dev.
+Checks: npx tsc --noEmit, npm run lint, npm run build.
 
-## Current supplied menu
-- Monday: Ke Starch, Beetroot, Pumpkin, Chicken + Stew, Soup, Drink of Choice
-- Tuesday: Samp & Stew
-- Wednesday: Pap, Braai, Chicken, Morogo
-- Thursday: Dumplings & Chicken
-- Friday: Hot Dog & Fries
+## Security
+Do not deploy Firebase rules until Odi schema/authorization and credentials are verified. Never commit service-account keys.
+Photography: /odi.jpeg is the approved portrait; /gwest.jpeg is a tree/environment image, not a verified training venue.
 
-## Current supplied deals
-- Beggar & Chips: P30; Bring a Friend P25
-- Hot Dog: P25; Bring a Friend P20
-- Potatoes: P10
-- Cup Drink: P8; Bring a Friend 2 for P15
-- Still Water: P7; Bring a Friend 2 for P10
-- Sausage & Chips: P30
-- Combo Sausage + Chips + Drink: P40
-- Beggar + Chips + Drink: P40
-
-## Operations
-/admin is protected by Firebase Authentication plus admins/{uid} with role owner/staff.
-
-## Development
-npm install
-npm run dev
-
-Quality gates:
-npx tsc --noEmit
-npm run lint
-npm run build
-
-See AGENTS.md for the implementation contract.
-
-## Pickup notifications
-Customer and kitchen pickup reminders are implemented with Firebase Cloud Messaging and a scheduled Firebase function. Before production delivery is enabled, generate a Firebase Web Push/VAPID key under Firebase Console → Project settings → Cloud Messaging → Web Push certificates and set `NEXT_PUBLIC_FIREBASE_VAPID_KEY` in the BOEMO deployment. Deploy the Firebase functions with `firebase deploy --only functions,firestore:indexes` on the BOEMO Firebase project; scheduled functions require the Firebase Blaze plan. The app asks for notification permission only from the user's explicit settings action and supports 5, 10, 15, 20, 30, 45 and 60 minute pickup reminders.
+## Next priority
+Persist a public booking request, add private instructor review, confirm conflict-safe times, and show appointment status to learners. Then add progress, packages/credits, auditable payments and tested notifications.
