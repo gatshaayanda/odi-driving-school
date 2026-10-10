@@ -37,5 +37,31 @@ PWA handoff/install experience still requires live/device verification. Commit `
 
 Customer enquiry checkpoint (2026-10-10): added service/enquiry topics and the public lesson enquiry flow. Server validates fields and origin, rejects non-JSON/oversized submissions, includes a honeypot, and returns success only after Firestore accepts the write. The server uses `FIREBASE_ADMIN_KEY` or `FIREBASE_SERVICE_ACCOUNT_JSON`, checks `project_id` is exactly `odi-driving-school`, and never exposes private booking requests to the client. Remaining before calling the live flow complete: configure the service-account secret in Vercel, verify Firestore/IAM provisioning, pass lint/type/build checks, confirm the production deployment is READY, and submit a real test enquiry while confirming that only the private server can access it. This public endpoint currently has no distributed rate limiter; do not treat the honeypot as a complete anti-abuse system. Next customer-flow stage is confirmation and return-use (stage 5), not instructor administration.
 
+## Golden PWA system — WhatsApp → normal browser → install
+The required customer journey is WhatsApp/social embedded browser → normal browser → optional PWA installation. The website remains usable without installation; installation must never block an enquiry.
 
-PWA install visibility correction (2026-10-10): the persistent install entry point must not be suppressed solely because the browser is classified as embedded. The embedded-browser guidance now offers an explicit “Show install options” action that dismisses the gate and opens platform-specific install instructions; Android still retains the direct Chrome handoff. The install entry point is hidden only when the browser reports standalone display mode (already-installed experience). Verify on production in a normal desktop/mobile browser and in WhatsApp/social in-app browsers; repository/CI checks do not substitute for device verification.
+Implementation paths:
+- src/app/layout.tsx performs server-side embedded-browser detection using User-Agent and, where supplied, X-Requested-With. A social referrer alone is not evidence of an embedded browser. It passes initial browser state to the root PWA controller.
+- src/app/layout.tsx uses a beforeInteractive script to capture beforeinstallprompt before React hydration and stores it on window.__odiInstallPrompt.
+- src/app/pwa-register.tsx is the single root controller for browser handoff, native installation, platform fallback, offline status, service-worker registration/update, and installed state. Do not add duplicate PWA controllers or competing overlays.
+- src/app/manifest.ts defines Odi identity, root start URL/scope, standalone display and icons. Keep every declared icon path aligned with a real public asset.
+- public/sw.js is registered at / with root scope and a versioned Odi cache. Keep API and private learner/instructor routes network-only; never imply cached/offline content proves a request was delivered.
+- src/app/pwa.css styles the single handoff gate and the separate fallback panel.
+
+Handoff rules:
+- Android embedded browsers use the primary OPEN IN CHROME action and an Android intent URL preserving the current path, query and fragment. The OS may reject the intent; do not claim the external browser can be forced.
+- iOS and other embedded hosts do not expose a universal API that websites can use to force Safari/Chrome. OPEN IN BROWSER reveals clear instructions to use the host app's menu. Never use a speculative redirect that can loop back into the gate.
+- The handoff gate and install fallback are separate states. While embedded, show only the handoff gate. Never show competing install promotion, dismiss-only gates, JavaScript alerts, or dead buttons.
+- The native install action is labelled Install Odi Driving School. When beforeinstallprompt was captured, the click calls its prompt() immediately; do not put an instruction modal or extra navigation between the click and native prompt.
+- If beforeinstallprompt is absent, the install action opens a branded, concise platform fallback: iPhone/iPad Safari Share → Add to Home Screen; Android Chrome menu → Install app/Add to Home screen; desktop Chrome/Edge menu → Install app/page as app. Do not pretend the native prompt opened. Browser/OS controls final installability and consent.
+- Capture the event early, adopt the saved event after hydration, listen for subsequent events once, clear it after use, and handle appinstalled by hiding installation promotion.
+- Hide installation promotion when standalone/already installed and on /learner, /instructor, and /admin routes. Do not auto-open installation UI on page load.
+- Do not change cache namespace without a deliberate migration/verification. Inspect the manifest response, icon URLs, HTTPS, service-worker scope/cache strategy, browser eligibility and installability diagnostics when debugging a missing native prompt.
+
+Verification checklist:
+1. Inspect the actual branch, source diff, manifest output, icon assets, and service-worker registration/scope.
+2. Run TypeScript, lint and production build.
+3. Verify exact commit and corresponding Vercel production deployment state.
+4. Test direct browser entry and WhatsApp → normal browser separately. Confirm route/query/hash preservation and no handoff loop.
+5. Test native prompt capture and direct prompt invocation where supported; test fallback where not supported; confirm standalone/appinstalled and private-route suppression.
+6. Physical-device tests are still required for WhatsApp/iOS/Android handoff. Never report device behavior as verified from source checks alone.
