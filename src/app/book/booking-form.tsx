@@ -55,7 +55,7 @@ export default function BookingForm() {
   }
 
   return (
-    <form className="enquiry-form" onSubmit={submit} noValidate>
+    <form className="enquiry-form" onSubmit={submit}>
       <div className="enquiry-form-intro">
         <p className="eyebrow">TELL US WHAT YOU NEED</p>
         <h2>Let’s start with your goals.</h2>
