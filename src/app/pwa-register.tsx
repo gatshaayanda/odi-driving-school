@@ -162,7 +162,8 @@ export default function PwaRegister({ initialEmbedded, initialAndroid }: PwaRegi
       await savedPrompt.prompt();
       await savedPrompt.userChoice;
     } catch {
-      // Browser denied/rejected the request; the next click will use the honest fallback.
+      // If the browser rejects the prompt, explain the supported manual route instead of failing silently.
+      setInstallHelpOpen(true);
     } finally {
       installPrompt.current = null;
       delete window.__odiInstallPrompt;
