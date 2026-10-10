@@ -32,6 +32,10 @@ export default function PwaRegister() {
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null);
   const [embedded, setEmbedded] = useState(false);
   const [androidEmbedded, setAndroidEmbedded] = useState(false);
+  const [iosDevice, setIosDevice] = useState(false);
+  const [androidDevice, setAndroidDevice] = useState(false);
+  const [standalone, setStandalone] = useState(false);
+  const [installHelpOpen, setInstallHelpOpen] = useState(false);
   const reload = useRef(false);
 
   useEffect(() => {
@@ -39,6 +43,9 @@ export default function PwaRegister() {
     setOffline(!navigator.onLine);
     setEmbedded(env.embedded && !env.standalone);
     setAndroidEmbedded(env.embedded && env.android && !env.standalone);
+    setIosDevice(env.ios);
+    setAndroidDevice(env.android);
+    setStandalone(env.standalone);
 
     let registration: ServiceWorkerRegistration | null = null;
     const online = () => {
@@ -92,35 +99,30 @@ export default function PwaRegister() {
   }, []);
 
   async function installApp() {
-    if (!prompt) return;
+    if (!prompt) {
+      setInstallHelpOpen(true);
+      return;
+    }
     try {
       await prompt.prompt();
       await prompt.userChoice;
     } finally {
       setPrompt(null);
+      setInstallHelpOpen(false);
     }
   }
 
   function openInBrowser() {
     const url = new URL(window.location.href);
-    if (androidEmbedded) {
-      // Launch Chrome with the current Odi URL, including its path and query.
-      const path = url.pathname + url.search;
-      window.location.href =
-        "intent://" +
-        url.host +
-        path +
-        "#Intent;scheme=" +
-        url.protocol.replace(":", "") +
-        ";package=com.android.chrome;end";
-      return;
-    }
-    // iOS and other embedded browsers generally prohibit forcing an external
-    // browser. Keep the destination visible and provide platform-specific steps.
-    setEmbedded(false);
-    window.setTimeout(() => {
-      window.location.href = url.toString();
-    }, 0);
+    if (!androidEmbedded) return;
+    const path = url.pathname + url.search + url.hash;
+    window.location.href =
+      "intent://" +
+      url.host +
+      path +
+      "#Intent;scheme=" +
+      url.protocol.replace(":", "") +
+      ";package=com.android.chrome;end";
   }
 
   function applyUpdate() {
@@ -135,27 +137,27 @@ export default function PwaRegister() {
   return (
     <>
       {embedded && (
-        <div className="pwaBrowserGate" role="alertdialog" aria-modal="true" aria-labelledby="odi-browser-title" aria-describedby="odi-browser-message">
+        <div className="pwaBrowserGate" role="dialog" aria-modal="true" aria-labelledby="odi-browser-title" aria-describedby="odi-browser-message">
           <section className="pwaBrowserCard">
             <div className="pwaBrowserIcon" aria-hidden="true">↗</div>
             <p className="pwaBrowserEyebrow">ODI DRIVING SCHOOL · BOTSWANA</p>
             <h2 id="odi-browser-title">Open Odi in your browser</h2>
             <p id="odi-browser-message">
-              For the best experience and to add Odi to your home screen, open this page in your phone's normal browser instead of WhatsApp or another app.
+              You can browse Odi on this page, but your phone's normal browser offers the best route to adding it to your home screen.
             </p>
             {androidEmbedded ? (
               <>
-                <button className="pwaBrowserPrimary" type="button" onClick={openInBrowser}>Open in Chrome ↗</button>
-                <p className="pwaBrowserHint">Chrome will open this same Odi page. Then use Chrome's menu to install or add it to your home screen.</p>
+                <button className="pwaBrowserPrimary" type="button" onClick={openInBrowser}>Open this page in Chrome ↗</button>
+                <p className="pwaBrowserHint">This opens the same Odi page in Chrome when your phone allows it. Then tap “Add Odi to Home Screen” on the page.</p>
+                <button className="pwaBrowserSecondary" type="button" onClick={() => setEmbedded(false)}>Keep browsing here</button>
               </>
             ) : (
               <>
                 <div className="pwaBrowserSteps">
-                  <strong>How to continue</strong>
-                  <p>Open this app's menu (usually <b>⋯</b> or <b>Share</b>) and choose <b>Open in browser</b>, <b>Open in Safari</b>, or <b>Open in Chrome</b>.</p>
-                  <p>Once the page opens in your browser, you can continue using Odi normally.</p>
+                  <strong>Open in your normal browser</strong>
+                  <p>Use this app's menu (usually ⋯ or Share) and choose <b>Open in browser</b>, <b>Open in Safari</b>, or <b>Open in Chrome</b>.</p>
                 </div>
-                <button className="pwaBrowserPrimary" type="button" onClick={() => setEmbedded(false)}>Continue here for now</button>
+                <button className="pwaBrowserPrimary" type="button" onClick={() => setEmbedded(false)}>Continue to Odi</button>
               </>
             )}
           </section>
@@ -164,7 +166,48 @@ export default function PwaRegister() {
 
       {offline && <div className="offlineBanner" role="status" aria-live="polite">Offline: previously loaded public Odi pages may remain available.</div>}
       {!offline && reconnecting && <div className="offlineBanner" role="status" aria-live="polite">Connection restored.</div>}
-      {!embedded && prompt && <button className="pwaInstall" onClick={() => void installApp()}>Install Odi Driving School ↓</button>}
+
+      {!embedded && !standalone && (
+        <button className="pwaInstall" type="button" onClick={() => void installApp()}>
+          {prompt ? "Install Odi Driving School ↓" : "Add Odi to Home Screen ↓"}
+        </button>
+      )}
+
+      {installHelpOpen && (
+        <div className="pwaBrowserGate pwaInstallHelpGate" role="dialog" aria-modal="true" aria-labelledby="odi-install-title" aria-describedby="odi-install-message">
+          <section className="pwaBrowserCard">
+            <button className="pwaClose" type="button" onClick={() => setInstallHelpOpen(false)} aria-label="Close install instructions">×</button>
+            <div className="pwaBrowserIcon" aria-hidden="true">⌂</div>
+            <p className="pwaBrowserEyebrow">YOUR SHORTCUT TO ODI</p>
+            <h2 id="odi-install-title">{prompt ? "Install Odi" : "Add Odi to your home screen"}</h2>
+            <p id="odi-install-message">
+              {prompt
+                ? "Your browser supports installation. Tap below to open its install confirmation."
+                : "Your browser has not offered a one-tap install prompt, so use its built-in menu. Odi's website remains available even if you choose not to install it."}
+            </p>
+            {prompt ? (
+              <button className="pwaBrowserPrimary" type="button" onClick={() => void installApp()}>Install Odi Driving School</button>
+            ) : iosDevice ? (
+              <div className="pwaBrowserSteps">
+                <strong>On iPhone or iPad</strong>
+                <p>Open this page in Safari, tap <b>Share</b>, then choose <b>Add to Home Screen</b>.</p>
+              </div>
+            ) : androidDevice ? (
+              <div className="pwaBrowserSteps">
+                <strong>On Android</strong>
+                <p>In Chrome, tap the <b>⋮</b> menu and choose <b>Install app</b> or <b>Add to Home screen</b>. The exact wording depends on your Chrome version.</p>
+              </div>
+            ) : (
+              <div className="pwaBrowserSteps">
+                <strong>On a computer</strong>
+                <p>In Chrome or Edge, open the browser menu and look for <b>Install Odi Driving School</b> or <b>Install page as app</b>.</p>
+              </div>
+            )}
+            <button className="pwaBrowserSecondary" type="button" onClick={() => setInstallHelpOpen(false)}>Continue using the website</button>
+          </section>
+        </div>
+      )}
+
       {waiting && <div className="pwaUpdate" role="status" aria-live="polite"><div><strong>Odi update ready</strong><span>Refresh to use the latest version.</span></div><button onClick={applyUpdate}>Refresh</button></div>}
     </>
   );
