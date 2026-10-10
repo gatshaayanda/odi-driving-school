@@ -143,7 +143,7 @@ export default function PwaRegister() {
             <p className="pwaBrowserEyebrow">ODI DRIVING SCHOOL · BOTSWANA</p>
             <h2 id="odi-browser-title">Open Odi in your browser</h2>
             <p id="odi-browser-message">
-              You can browse Odi on this page, but your phone's normal browser offers the best route to adding it to your home screen.
+              You can browse Odi on this page, but your phone&apos;s normal browser offers the best route to adding it to your home screen.
             </p>
             {androidEmbedded ? (
               <>
@@ -155,7 +155,7 @@ export default function PwaRegister() {
               <>
                 <div className="pwaBrowserSteps">
                   <strong>Open in your normal browser</strong>
-                  <p>Use this app's menu (usually ⋯ or Share) and choose <b>Open in browser</b>, <b>Open in Safari</b>, or <b>Open in Chrome</b>.</p>
+                  <p>Use this app&apos;s menu (usually ⋯ or Share) and choose <b>Open in browser</b>, <b>Open in Safari</b>, or <b>Open in Chrome</b>.</p>
                 </div>
                 <button className="pwaBrowserPrimary" type="button" onClick={() => setEmbedded(false)}>Continue to Odi</button>
               </>
