@@ -34,7 +34,15 @@ export async function POST(request: Request) {
 
   let body: Record<string, unknown>;
   try {
-    body = (await request.json()) as Record<string, unknown>;
+    const rawBody = await request.text();
+    if (rawBody.length > 10_000) {
+      return jsonError("Your message is too long. Please shorten it and try again.", 413);
+    }
+    const parsed: unknown = JSON.parse(rawBody);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return jsonError("Please check the form and try again.", 400);
+    }
+    body = parsed as Record<string, unknown>;
   } catch {
     return jsonError("We couldn't read that submission. Please check the form and try again.", 400);
   }
