@@ -44,6 +44,7 @@ export default function PwaRegister({ initialEmbedded, initialAndroid }: PwaRegi
   const [installHelpOpen, setInstallHelpOpen] = useState(false);
   const [handoffHelpOpen, setHandoffHelpOpen] = useState(false);
   const installPrompt = useRef<InstallPromptEvent | null>(null);
+  const embeddedActionRef = useRef<HTMLButtonElement | null>(null);
   const reloadForUpdate = useRef(false);
 
   const privateRoute = pathname === "/learner" || pathname.startsWith("/learner/") ||
@@ -123,6 +124,33 @@ export default function PwaRegister({ initialEmbedded, initialAndroid }: PwaRegi
     return () => { document.body.style.overflow = ""; };
   }, [embedded]);
 
+  useEffect(() => {
+    if (!embedded) return;
+    embeddedActionRef.current?.focus();
+    const keepGateAccessible = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const gate = document.querySelector(".pwaBrowserGate:not(.pwaInstallHelpGate)");
+      if (!(gate instanceof HTMLElement)) return;
+      const focusable = Array.from(gate.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", keepGateAccessible, true);
+    return () => document.removeEventListener("keydown", keepGateAccessible, true);
+  }, [embedded]);
+
   async function installApp() {
     const savedPrompt = installPrompt.current;
     if (!savedPrompt) {
@@ -172,12 +200,12 @@ export default function PwaRegister({ initialEmbedded, initialAndroid }: PwaRegi
             <p id="odi-browser-message">For the best way to save Odi to your home screen, open this same page in your phone&apos;s normal browser.</p>
             {androidEmbedded ? (
               <>
-                <button className="pwaBrowserPrimary" type="button" onClick={openInBrowser}>OPEN IN CHROME ↗</button>
+                <button ref={embeddedActionRef} className="pwaBrowserPrimary" type="button" onClick={openInBrowser}>OPEN IN CHROME ↗</button>
                 <p className="pwaBrowserHint">We&apos;ll ask Android to open this exact Odi page in Chrome, including the page you came to.</p>
               </>
             ) : (
               <>
-                <button className="pwaBrowserPrimary" type="button" onClick={openInBrowser}>OPEN IN BROWSER ↗</button>
+                <button ref={embeddedActionRef} className="pwaBrowserPrimary" type="button" onClick={openInBrowser}>OPEN IN BROWSER ↗</button>
                 {handoffHelpOpen && <div className="pwaBrowserSteps" role="status" aria-live="polite">
                   <strong>Use this app&apos;s browser menu</strong>
                   <p>Tap this app&apos;s <b>⋯</b> menu or <b>Share</b>, then choose <b>Open in browser</b>, <b>Open in Safari</b>, or <b>Open in Chrome</b>. Some apps do not allow a website to launch the external browser directly.</p>
