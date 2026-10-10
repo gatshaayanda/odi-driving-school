@@ -150,6 +150,7 @@ export default function PwaRegister() {
                 <button className="pwaBrowserPrimary" type="button" onClick={openInBrowser}>Open this page in Chrome ↗</button>
                 <p className="pwaBrowserHint">This opens the same Odi page in Chrome when your phone allows it. Then tap “Add Odi to Home Screen” on the page.</p>
                 <button className="pwaBrowserSecondary" type="button" onClick={() => setEmbedded(false)}>Keep browsing here</button>
+                <button className="pwaBrowserSecondary" type="button" onClick={() => { setEmbedded(false); setInstallHelpOpen(true); }}>Show install options</button>
               </>
             ) : (
               <>
@@ -158,6 +159,7 @@ export default function PwaRegister() {
                   <p>Use this app&apos;s menu (usually ⋯ or Share) and choose <b>Open in browser</b>, <b>Open in Safari</b>, or <b>Open in Chrome</b>.</p>
                 </div>
                 <button className="pwaBrowserPrimary" type="button" onClick={() => setEmbedded(false)}>Continue to Odi</button>
+                <button className="pwaBrowserSecondary" type="button" onClick={() => { setEmbedded(false); setInstallHelpOpen(true); }}>Show install options</button>
               </>
             )}
           </section>
@@ -167,7 +169,7 @@ export default function PwaRegister() {
       {offline && <div className="offlineBanner" role="status" aria-live="polite">Offline: previously loaded public Odi pages may remain available.</div>}
       {!offline && reconnecting && <div className="offlineBanner" role="status" aria-live="polite">Connection restored.</div>}
 
-      {!embedded && !standalone && (
+      {!standalone && (
         <button className="pwaInstall" type="button" onClick={() => void installApp()}>
           {prompt ? "Install Odi Driving School ↓" : "Add Odi to Home Screen ↓"}
         </button>
