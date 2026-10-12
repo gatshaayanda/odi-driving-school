@@ -1,3 +1,4 @@
+/* eslint @next/next/no-html-link-for-pages: "off" -- Native document navigation is required for reliable offline page transitions. */
 import BookingForm from "./booking-form";
 
 export const metadata = {
