@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 type SubmissionState =
   | { kind: "idle" }
@@ -10,10 +10,28 @@ type SubmissionState =
 
 export default function BookingForm() {
   const [state, setState] = useState<SubmissionState>({ kind: "idle" });
+  const [online, setOnline] = useState(true);
+
+  useEffect(() => {
+    setOnline(navigator.onLine);
+    const onOnline = () => setOnline(true);
+    const onOffline = () => setOnline(false);
+    window.addEventListener("online", onOnline);
+    window.addEventListener("offline", onOffline);
+    return () => {
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("offline", onOffline);
+    };
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (state.kind === "sending") return;
+    if (!navigator.onLine) {
+      setOnline(false);
+      setState({ kind: "error", message: "You’re offline. Your details are still in this form, but nothing has been sent. Reconnect and try again." });
+      return;
+    }
 
     const form = event.currentTarget;
     const values = Object.fromEntries(new FormData(form).entries());
@@ -62,6 +80,7 @@ export default function BookingForm() {
         <p>Share a few details. Odi can review your enquiry and discuss the appropriate lesson options and availability with you.</p>
       </div>
 
+      {!online && <p className="enquiry-alert" role="status">You’re offline. You can review this form, but an enquiry cannot be sent until your connection returns. Your entries stay in this open form.</p>}
       {state.kind === "error" && <p className="enquiry-alert" role="alert">{state.message}</p>}
 
       <div className="form-grid">
