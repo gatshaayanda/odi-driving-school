@@ -1,4 +1,3 @@
-import Link from "next/link";
 import BookingForm from "./booking-form";
 
 export const metadata = {
@@ -10,11 +9,11 @@ export default function BookingPage() {
   return (
     <main className="booking-page">
       <header className="booking-header">
-        <Link className="brand" href="/" aria-label="Odi Driving School home">
+        <a className="brand" href="/" aria-label="Odi Driving School home">
           <span className="brand-mark">O</span>
           <span className="brand-copy"><strong>ODI</strong><small>DRIVING SCHOOL</small></span>
-        </Link>
-        <Link href="/" className="text-link">Back to home ↗</Link>
+        </a>
+        <a href="/" className="text-link">Back to home ↗</a>
       </header>
       <section className="booking-card">
         <p className="eyebrow">LESSON ENQUIRIES · GABORONE</p>
@@ -28,7 +27,7 @@ export default function BookingPage() {
       </section>
       <footer className="booking-footer">
         <span>Odi Driving School · Gaborone, Botswana</span>
-        <Link href="/">Return to the home page</Link>
+        <a href="/">Return to the home page</a>
       </footer>
     </main>
   );
